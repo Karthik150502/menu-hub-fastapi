@@ -85,3 +85,10 @@ dist/
 # Jupyter Notebook
 # ------------------------------
 .ipynb_checkpoints/
+
+
+# ------------------------------
+# Alembic
+# ------------------------------
+migrations/versions/*.py
+!migrations/versions/.gitkeep
