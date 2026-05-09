@@ -1,6 +1,8 @@
 """
 Health & readiness endpoints — used by load balancers and k8s probes.
 """
+from datetime import datetime
+
 from fastapi import APIRouter
 from sqlalchemy import text
 
@@ -11,8 +13,9 @@ router = APIRouter(tags=["health"])
 
 @router.get("/health", include_in_schema=False)
 async def liveness() -> dict:
+    now = datetime.now()
     """Liveness probe — always returns 200 if the process is up."""
-    return {"status": "ok"}
+    return {"status": "ok","time": now.strftime("%S-%M-%H:%d-%m-%Y")}
 
 
 @router.get("/health/ready", include_in_schema=False)

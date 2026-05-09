@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     SUPABASE_ANON_KEY: str = ""
     SUPABASE_SERVICE_ROLE_KEY: str = ""
     SUPABASE_JWT_SECRET: str = ""
+    SUPABASE_API_KEY: str = ""        # publishable key (sb_publishable_...)
+    SUPABASE_SECRET_KEY: str = ""     # secret key (sb_secret_...)
 
     # ── Database (Supabase Postgres — direct connection) ───────────────────
     DATABASE_URL: str = "postgresql+asyncpg://postgres:password@localhost:5432/postgres"
