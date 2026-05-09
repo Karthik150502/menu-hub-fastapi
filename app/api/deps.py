@@ -8,10 +8,12 @@ from typing import Annotated
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
+from supabase import AsyncClient
 
 from app.core.exceptions import ForbiddenError, UnauthorizedError
 from app.core.security import decode_token
 from app.db.session import get_db
+from app.db.supabase import get_anon_client, get_service_client
 from app.models.user import User
 from app.services.user_service import UserService
 
@@ -20,6 +22,8 @@ bearer_scheme = HTTPBearer(auto_error=False)
 # ── Type aliases ───────────────────────────────────────────────────────────────
 DBSession = Annotated[AsyncSession, Depends(get_db)]
 BearerToken = Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)]
+AnonSupabase = Annotated[AsyncClient, Depends(get_anon_client)]
+ServiceSupabase = Annotated[AsyncClient, Depends(get_service_client)]
 
 
 # ── Auth dependencies ──────────────────────────────────────────────────────────

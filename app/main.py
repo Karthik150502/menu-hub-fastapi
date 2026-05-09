@@ -10,6 +10,7 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.exceptions import AppException
 from app.core.logging import setup_logging
+from app.db.supabase import close_supabase_clients, init_supabase_clients
 from app.middleware.errors import ErrorHandlerMiddleware
 from app.middleware.logging import LoggingMiddleware
 
@@ -19,9 +20,9 @@ from app.middleware.logging import LoggingMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging()
-    # Add any startup logic here: warm caches, verify DB connectivity, etc.
+    await init_supabase_clients()
     yield
-    # Teardown: close connection pools, flush buffers, etc.
+    await close_supabase_clients()
 
 
 # ── App factory ────────────────────────────────────────────────────────────────
