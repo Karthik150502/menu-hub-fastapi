@@ -4,10 +4,7 @@ Always use UUID primary keys to match Supabase's auth schema.
 """
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Boolean, DateTime, String, Text
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
-from app.db.session import Base
+from app.db.session import Base, Boolean, DateTime, Mapped, String, Text, UUID, mapped_column
 
 
 def utcnow() -> datetime:

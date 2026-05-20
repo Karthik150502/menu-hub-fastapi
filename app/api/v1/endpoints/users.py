@@ -8,7 +8,7 @@ import uuid
 
 from fastapi import APIRouter
 
-from app.api.deps import CurrentUser, DBSession, SuperUser
+from app.api.deps import CurrentUser, ServiceSupabase, SuperUser
 from app.schemas.common import PaginatedResponse, Response
 from app.schemas.user import UserRead, UserUpdate
 from app.services.user_service import UserService
@@ -27,9 +27,9 @@ async def get_me(current_user: CurrentUser) -> Response[UserRead]:
 async def update_me(
     payload: UserUpdate,
     current_user: CurrentUser,
-    session: DBSession,
+    client: ServiceSupabase,
 ) -> Response[UserRead]:
-    service = UserService(session)
+    service = UserService(client)
     user = await service.update(current_user.id, payload)
     return Response(message="Profile updated", data=UserRead.model_validate(user))
 
@@ -39,17 +39,17 @@ async def update_me(
 @router.get("", response_model=PaginatedResponse[UserRead])
 async def list_users(
     _: SuperUser,
-    session: DBSession,
+    client: ServiceSupabase,
     page: int = 1,
     page_size: int = 20,
 ) -> PaginatedResponse[UserRead]:
-    service = UserService(session)
+    service = UserService(client)
     offset = (page - 1) * page_size
     users = await service.list(limit=page_size + 1, offset=offset)
     has_next = len(users) > page_size
     return PaginatedResponse(
         data=[UserRead.model_validate(u) for u in users[:page_size]],
-        total=-1,  # replace with COUNT query if needed
+        total=-1,
         page=page,
         page_size=page_size,
         has_next=has_next,
@@ -60,9 +60,9 @@ async def list_users(
 async def get_user(
     user_id: uuid.UUID,
     _: SuperUser,
-    session: DBSession,
+    client: ServiceSupabase,
 ) -> Response[UserRead]:
-    service = UserService(session)
+    service = UserService(client)
     user = await service.get(user_id)
     return Response(data=UserRead.model_validate(user))
 
@@ -71,7 +71,7 @@ async def get_user(
 async def delete_user(
     user_id: uuid.UUID,
     _: SuperUser,
-    session: DBSession,
+    client: ServiceSupabase,
 ) -> None:
-    service = UserService(session)
+    service = UserService(client)
     await service.delete(user_id)

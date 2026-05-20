@@ -1,12 +1,9 @@
 """
 Auth endpoints — register, login, refresh, logout, me.
 """
-from typing import Annotated
+from fastapi import APIRouter
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.api.deps import CurrentUser, DBSession
+from app.api.deps import CurrentUser, ServiceSupabase
 from app.core.security import create_access_token, create_refresh_token, decode_token
 from app.core.exceptions import UnauthorizedError
 from app.schemas.common import Response
@@ -23,17 +20,17 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=Response[UserRead], status_code=201)
-async def register(payload: UserCreate, session: DBSession) -> Response[UserRead]:
+async def register(payload: UserCreate, client: ServiceSupabase) -> Response[UserRead]:
     """Create a new user account."""
-    service = UserService(session)
+    service = UserService(client)
     user = await service.create(payload)
     return Response(message="Account created", data=UserRead.model_validate(user))
 
 
 @router.post("/login", response_model=Response[TokenPair])
-async def login(payload: LoginRequest, session: DBSession) -> Response[TokenPair]:
+async def login(payload: LoginRequest, client: ServiceSupabase) -> Response[TokenPair]:
     """Authenticate and receive an access + refresh token pair."""
-    service = UserService(session)
+    service = UserService(client)
     user = await service.authenticate(payload.email, payload.password)
     tokens = TokenPair(
         access_token=create_access_token(str(user.id)),

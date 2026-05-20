@@ -3,12 +3,14 @@ Async SQLAlchemy engine + session factory for direct Postgres access.
 Use this alongside the Supabase client when you need raw SQL / complex joins.
 """
 from collections.abc import AsyncGenerator
+from sqlalchemy import Boolean, DateTime, JSON, String, Text
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from app.core.config import settings
 
 engine = create_async_engine(

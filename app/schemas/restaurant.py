@@ -15,6 +15,7 @@ class RestaurantBase(BaseModel):
     city: str | None = None
     state: str | None = None
     country: str = "India"
+    shop_timings: dict | None = None
 
 
 class RestaurantCreate(RestaurantBase):
@@ -33,6 +34,7 @@ class RestaurantUpdate(BaseModel):
     city: str | None = None
     state: str | None = None
     country: str | None = None
+    shop_timings: dict | None = None
 
 
 class RestaurantRead(RestaurantBase):
