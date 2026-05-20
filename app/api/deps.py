@@ -7,8 +7,8 @@ from typing import Annotated
 
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy.ext.asyncio import AsyncSession
-from supabase import AsyncClient
+from app.db.session import AsyncSession
+from app.db.supabase import AsyncClient
 
 from app.core.exceptions import ForbiddenError, UnauthorizedError
 from app.core.security import decode_token
@@ -30,7 +30,7 @@ ServiceSupabase = Annotated[AsyncClient, Depends(get_service_client)]
 
 async def get_current_user(
     credentials: BearerToken,
-    session: DBSession,
+    client: ServiceSupabase,
 ) -> User:
     if not credentials:
         raise UnauthorizedError()
@@ -44,7 +44,7 @@ async def get_current_user(
         raise UnauthorizedError("Wrong token type")
 
     user_id = uuid.UUID(payload["sub"])
-    service = UserService(session)
+    service = UserService(client)
     return await service.get(user_id)
 
 
