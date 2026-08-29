@@ -1,6 +1,12 @@
 """
 Alembic migration environment — async SQLAlchemy edition.
-Run migrations with: alembic upgrade head
+
+FROZEN as of 2026-08-29 — schema changes now go through the Supabase CLI
+(supabase/migrations/*.sql, `make db-new` / `make db-push`), not this.
+Kept for its pre-2026-08-29 history; don't run
+`alembic revision --autogenerate` for new schema changes. app/models/*.py
+and the app's SQLAlchemy runtime usage are unaffected — only the
+schema-authoring tool changed. See README.md's Migrations section.
 """
 import asyncio
 from logging.config import fileConfig
