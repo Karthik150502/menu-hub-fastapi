@@ -1,4 +1,4 @@
-.PHONY: install dev lint test migrate
+.PHONY: install dev lint test migrate migration db-pull db-push db-new
 
 install:
 	poetry install
@@ -12,6 +12,17 @@ lint:
 test:
 	pytest --cov=app --cov-report=term-missing -v
 
+# ── Schema (Supabase CLI — see README's Migrations section) ────────────────
+db-pull:
+	supabase db pull
+
+db-push:
+	supabase db push
+
+db-new:
+	supabase migration new $(name)
+
+# ── Legacy (Alembic) — frozen as of 2026-08-29, kept for history only ──────
 migrate:
 	alembic upgrade head
 

@@ -12,7 +12,7 @@ A production-ready FastAPI project with Supabase (auth + Postgres) as the backen
 | Auth | JWT (python-jose) + Supabase Auth |
 | Database | Supabase Postgres (via asyncpg) |
 | ORM | SQLAlchemy 2 (async) |
-| Migrations | Alembic |
+| Migrations | Supabase CLI (`supabase/migrations/`) — Alembic (`migrations/`) is frozen, kept only as pre-2026-08-29 history |
 | Validation | Pydantic v2 |
 | Logging | structlog |
 | Testing | pytest-asyncio + HTTPX |
@@ -84,9 +84,11 @@ poetry install
 
 ### 2. Run database migrations
 ```bash
-make migrate
-# or: alembic upgrade head
+make db-push
+# or: supabase db push
 ```
+Schema is managed through the Supabase CLI now, not Alembic — see
+[Migrations](#migrations) below.
 
 ### 3. Start dev server
 ```bash
@@ -148,7 +150,21 @@ class PostRepository(BaseRepository[Post]):
 3. Add service in `app/services/`
 4. Add router in `app/api/v1/endpoints/`
 5. Register router in `app/api/v1/router.py`
-6. Generate migration: `make migration name=add_posts_table`
+6. Generate migration: `make db-new name=add_posts_table`, edit the generated SQL, then `make db-push`
+
+---
+
+## Migrations
+
+Schema changes go through the **Supabase CLI** (`supabase/migrations/*.sql`), linked to the remote project — not Alembic.
+
+```bash
+make db-new name=add_posts_table   # supabase migration new add_posts_table — creates an empty SQL file to edit
+make db-push                       # supabase db push — applies pending local migrations to the linked project
+make db-pull                       # supabase db pull — pulls the linked project's schema as a migration (needs Docker)
+```
+
+`migrations/` (Alembic) is **frozen** as of 2026-08-29 — kept in the repo as historical record of how the schema got to that point, but no longer used to author new changes. `app/models/*.py` and the app's SQLAlchemy runtime usage are unaffected; only the schema-authoring tool changed. Don't run `alembic revision --autogenerate` — `make migrate`/`make migration` are kept working for reference but are not how schema changes happen anymore.
 
 ---
 
