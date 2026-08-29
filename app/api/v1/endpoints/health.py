@@ -4,9 +4,8 @@ Health & readiness endpoints — used by load balancers and k8s probes.
 from datetime import datetime
 
 from fastapi import APIRouter
-from sqlalchemy import text
 
-from app.db.session import AsyncSessionLocal
+from app.api.deps import ServiceSupabase
 
 router = APIRouter(tags=["health"])
 
@@ -19,11 +18,10 @@ async def liveness() -> dict:
 
 
 @router.get("/health/ready", include_in_schema=False)
-async def readiness() -> dict:
-    """Readiness probe — checks DB connectivity."""
+async def readiness(client: ServiceSupabase) -> dict:
+    """Readiness probe — checks Supabase connectivity."""
     try:
-        async with AsyncSessionLocal() as session:
-            await session.execute(text("SELECT 1"))
+        await client.table("currencies").select("code").limit(1).execute()
         db_ok = True
     except Exception:
         db_ok = False
