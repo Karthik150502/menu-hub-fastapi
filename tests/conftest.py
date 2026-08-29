@@ -7,9 +7,11 @@ from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.db.session import Base, get_db
+from app.db.supabase import get_anon_client, get_service_client
 from app.main import app
+from tests.fake_supabase import FakeSupabaseClient
 
-# ── In-memory SQLite for tests ─────────────────────────────────────────────────
+# ── In-memory SQLite — still backs the SQLAlchemy-based endpoints (restaurants) ─
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
@@ -32,12 +34,21 @@ async def session():
         await s.rollback()
 
 
+@pytest.fixture
+def fake_supabase() -> FakeSupabaseClient:
+    """In-memory stand-in for both Supabase clients — auth-backed endpoints
+    (register/login/me/users) run against this instead of a real project."""
+    return FakeSupabaseClient()
+
+
 @pytest_asyncio.fixture
-async def client(session: AsyncSession):
+async def client(session: AsyncSession, fake_supabase: FakeSupabaseClient):
     async def override_get_db():
         yield session
 
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_anon_client] = lambda: fake_supabase
+    app.dependency_overrides[get_service_client] = lambda: fake_supabase
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
         yield c
     app.dependency_overrides.clear()

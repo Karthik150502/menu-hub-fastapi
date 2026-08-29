@@ -1,42 +1,52 @@
-from datetime import datetime, timedelta, timezone
+"""
+Token verification for Supabase Auth.
+
+Password hashing and token *issuance* are Supabase's job now (sign_up /
+sign_in_with_password / refresh_session in app/services/auth_service.py) —
+this module only verifies bearer tokens the client already got from
+Supabase.
+
+Supabase projects on the legacy shared JWT secret sign access tokens with
+HS256 using SUPABASE_JWT_SECRET, which we can verify locally with no
+network round-trip. Projects that have switched to the newer asymmetric
+JWT signing keys (JWKS) won't validate against that secret — for those,
+verify_supabase_token falls back to asking Supabase's Auth server directly
+via client.auth.get_user(token). The fallback keeps this working either
+way without needing to know in advance which mode a given project is in.
+"""
 from typing import Any
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+from supabase import AsyncClient
+from supabase_auth.errors import AuthApiError
 
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+AUDIENCE = "authenticated"
 
 
-def create_access_token(subject: str | Any, expires_delta: timedelta | None = None) -> str:
-    expire = datetime.now(timezone.utc) + (
-        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+def _decode_local(token: str) -> dict[str, Any]:
+    return jwt.decode(
+        token, settings.SUPABASE_JWT_SECRET, algorithms=[ALGORITHM], audience=AUDIENCE
     )
-    payload = {"sub": str(subject), "exp": expire, "type": "access"}
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 
-def create_refresh_token(subject: str | Any) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    payload = {"sub": str(subject), "exp": expire, "type": "refresh"}
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
-
-
-def decode_token(token: str) -> dict[str, Any]:
+async def verify_supabase_token(token: str, client: AsyncClient) -> dict[str, Any]:
+    """Return the token's claims (sub, email, ...), raising ValueError if invalid/expired."""
     try:
-        return jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
-    except JWTError as exc:
+        return _decode_local(token)
+    except JWTError:
+        pass  # not a locally-verifiable HS256 token — fall back to asking Supabase
+
+    try:
+        response = await client.auth.get_user(token)
+    except AuthApiError as exc:
+        # e.g. "User from sub claim in JWT does not exist" — a still-valid
+        # token for a user that's since been deleted.
         raise ValueError("Invalid or expired token") from exc
 
-
-def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
-
-
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    if response is None or response.user is None:
+        raise ValueError("Invalid or expired token")
+    user = response.user
+    return {"sub": str(user.id), "email": user.email}
