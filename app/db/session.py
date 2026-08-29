@@ -1,45 +1,17 @@
 """
-Async SQLAlchemy engine + session factory for direct Postgres access.
-Use this alongside the Supabase client when you need raw SQL / complex joins.
+SQLAlchemy declarative base + column-type re-exports.
+
+Runtime session/engine machinery (engine, AsyncSessionLocal, get_db) was
+removed here once RestaurantService — the last consumer — moved to the
+Supabase SDK on 2026-08-29; the app no longer opens its own Postgres
+connections. Base and the column-type re-exports below stay because
+app/models/*.py (frozen alongside Alembic, see migrations/env.py) still
+import them.
 """
-from collections.abc import AsyncGenerator
 from sqlalchemy import Boolean, DateTime, JSON, String, Text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from app.core.config import settings
-
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    pool_size=settings.DATABASE_POOL_SIZE,
-    max_overflow=settings.DATABASE_MAX_OVERFLOW,
-    pool_pre_ping=True,
-    echo=settings.DEBUG,
-)
-
-AsyncSessionLocal = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autocommit=False,
-    autoflush=False,
-)
 
 
 class Base(DeclarativeBase):
     pass
-
-
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """FastAPI dependency — yields a scoped async session."""
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-            await session.commit()
-        except Exception:
-            await session.rollback()
-            raise

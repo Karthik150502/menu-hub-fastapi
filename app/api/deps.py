@@ -7,12 +7,10 @@ from typing import Annotated
 
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from app.db.session import AsyncSession
 from app.db.supabase import AsyncClient
 
 from app.core.exceptions import ForbiddenError, UnauthorizedError
 from app.core.security import verify_supabase_token
-from app.db.session import get_db
 from app.db.supabase import get_anon_client, get_service_client
 from app.schemas.user import UserRead
 from app.services.profile_service import ProfileService
@@ -20,7 +18,6 @@ from app.services.profile_service import ProfileService
 bearer_scheme = HTTPBearer(auto_error=False)
 
 # ── Type aliases ───────────────────────────────────────────────────────────────
-DBSession = Annotated[AsyncSession, Depends(get_db)]
 BearerToken = Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)]
 AnonSupabase = Annotated[AsyncClient, Depends(get_anon_client)]
 ServiceSupabase = Annotated[AsyncClient, Depends(get_service_client)]

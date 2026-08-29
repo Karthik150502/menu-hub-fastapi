@@ -36,13 +36,12 @@ fastapi-supabase/
 │   │           └── health.py    # /health — liveness + readiness
 │   ├── core/
 │   │   ├── config.py            # Settings (pydantic-settings + .env)
-│   │   ├── security.py          # JWT helpers, password hashing
+│   │   ├── security.py          # Supabase-token verification
 │   │   ├── logging.py           # structlog setup
 │   │   └── exceptions.py        # Typed HTTP exceptions
 │   ├── db/
-│   │   ├── session.py           # Async SQLAlchemy engine + get_db()
-│   │   ├── supabase.py          # Supabase async client (anon + service role)
-│   │   └── repository.py        # Generic async repository base class
+│   │   ├── session.py           # SQLAlchemy Base + column re-exports (frozen models only — no runtime engine)
+│   │   └── supabase.py          # Supabase async client (anon + service role) — how the app actually talks to the DB
 │   ├── models/
 │   │   └── user.py              # SQLAlchemy User model
 │   ├── schemas/
@@ -132,25 +131,22 @@ raise UnauthorizedError()          # → 401
 ### Dependency injection
 ```python
 @router.get("/me")
-async def me(current_user: CurrentUser, session: DBSession):
+async def me(current_user: CurrentUser, client: ServiceSupabase):
     ...
 ```
 
-### Repository pattern
-Extend `BaseRepository` for new models:
-```python
-class PostRepository(BaseRepository[Post]):
-    async def find_by_author(self, author_id: UUID) -> list[Post]:
-        ...
-```
+### Service pattern
+Services are thin wrappers over `client.table("...")` calls — see
+`app/services/profile_service.py` or `app/services/restaurant_service.py`
+for the shape to copy (`_get_or_404`, dict-based rows, ownership checked
+in Python). There's no repository/ORM layer to extend anymore.
 
 ### Adding a new feature
-1. Add model in `app/models/`
-2. Add schema in `app/schemas/`
-3. Add service in `app/services/`
-4. Add router in `app/api/v1/endpoints/`
-5. Register router in `app/api/v1/router.py`
-6. Generate migration: `make db-new name=add_posts_table`, edit the generated SQL, then `make db-push`
+1. Add schema in `app/schemas/`
+2. Add service in `app/services/`, following the pattern above
+3. Add router in `app/api/v1/endpoints/`
+4. Register router in `app/api/v1/router.py`
+5. Generate migration: `make db-new name=add_posts_table`, edit the generated SQL, then `make db-push`
 
 ---
 
@@ -164,7 +160,7 @@ make db-push                       # supabase db push — applies pending local 
 make db-pull                       # supabase db pull — pulls the linked project's schema as a migration (needs Docker)
 ```
 
-`migrations/` (Alembic) is **frozen** as of 2026-08-29 — kept in the repo as historical record of how the schema got to that point, but no longer used to author new changes. `app/models/*.py` and the app's SQLAlchemy runtime usage are unaffected; only the schema-authoring tool changed. Don't run `alembic revision --autogenerate` — `make migrate`/`make migration` are kept working for reference but are not how schema changes happen anymore.
+`migrations/` (Alembic) is **frozen** as of 2026-08-29 — kept in the repo as historical record of how the schema got to that point, but no longer used to author new changes. Don't run `alembic revision --autogenerate` — `make migrate`/`make migration` are kept working for reference but are not how schema changes happen anymore. `app/models/*.py` are similarly frozen ORM definitions, kept only so Alembic's autogenerate metadata still resolves — the app itself has no SQLAlchemy runtime left (as of 2026-08-29, when `RestaurantService`, the last holdout, moved to the Supabase SDK); every service talks to Supabase directly via `app/db/supabase.py`.
 
 ---
 

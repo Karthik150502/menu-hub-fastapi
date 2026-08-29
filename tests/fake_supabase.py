@@ -122,16 +122,19 @@ class FakeResponse:
 
 
 class FakeQuery:
-    """Supports the exact chain shapes ProfileService uses against
-    .table("profiles") — select/eq/maybe_single/order/range, and update/eq."""
+    """Supports the chain shapes ProfileService/RestaurantService use
+    against .table(...) — select/eq/maybe_single/order/range/insert/
+    update/delete. Operates on one table's row dict (keyed by id)."""
 
-    def __init__(self, store: "FakeSupabaseClient") -> None:
-        self.store = store
+    def __init__(self, table: dict[str, dict[str, Any]]) -> None:
+        self._table = table
         self._filters: dict[str, str] = {}
         self._single = False
         self._order: tuple[str, bool] | None = None
         self._range: tuple[int, int] | None = None
+        self._insert_data: dict[str, Any] | None = None
         self._update_data: dict[str, Any] | None = None
+        self._delete = False
 
     def select(self, *_args: Any, **_kwargs: Any) -> "FakeQuery":
         return self
@@ -152,18 +155,40 @@ class FakeQuery:
         self._range = (start, end)
         return self
 
+    def insert(self, data: dict[str, Any]) -> "FakeQuery":
+        self._insert_data = data
+        return self
+
     def update(self, data: dict[str, Any]) -> "FakeQuery":
         self._update_data = data
         return self
 
+    def delete(self) -> "FakeQuery":
+        self._delete = True
+        return self
+
     def _matching_rows(self) -> list[dict[str, Any]]:
-        rows = list(self.store.profiles.values())
+        rows = list(self._table.values())
         for field, value in self._filters.items():
             rows = [r for r in rows if str(r.get(field)) == value]
         return rows
 
     async def execute(self) -> FakeResponse:
+        if self._insert_data is not None:
+            row = dict(self._insert_data)
+            row.setdefault("id", str(uuid.uuid4()))
+            now = datetime.now(timezone.utc).isoformat()
+            row.setdefault("created_at", now)
+            row.setdefault("updated_at", now)
+            self._table[row["id"]] = row
+            return FakeResponse([row])
+
         rows = self._matching_rows()
+
+        if self._delete:
+            for row in rows:
+                self._table.pop(row["id"], None)
+            return FakeResponse(rows)
 
         if self._update_data is not None:
             for row in rows:
@@ -189,9 +214,14 @@ class FakeSupabaseClient:
 
     def __init__(self) -> None:
         self.users_by_id: dict[str, FakeUser] = {}
-        self.profiles: dict[str, dict[str, Any]] = {}
+        self.tables: dict[str, dict[str, dict[str, Any]]] = {"profiles": {}, "restaurants": {}}
         self.auth = FakeAuth(self)
 
+    @property
+    def profiles(self) -> dict[str, dict[str, Any]]:
+        return self.tables["profiles"]
+
     def table(self, name: str) -> FakeQuery:
-        assert name == "profiles", f"fake client only knows about 'profiles', got {name!r}"
-        return FakeQuery(self)
+        if name not in self.tables:
+            raise AssertionError(f"fake client doesn't know about table {name!r}")
+        return FakeQuery(self.tables[name])
