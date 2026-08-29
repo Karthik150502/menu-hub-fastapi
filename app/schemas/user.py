@@ -16,7 +16,6 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     full_name: str | None = None
     avatar_url: str | None = None
-    password: str | None = Field(default=None, min_length=8, max_length=128)
 
 
 class UserRead(UserBase):
@@ -24,14 +23,10 @@ class UserRead(UserBase):
 
     id: uuid.UUID
     is_active: bool
-    is_verified: bool
     is_superuser: bool
+    email_confirmed: bool
     created_at: datetime
     updated_at: datetime
-
-
-class UserInDB(UserRead):
-    hashed_password: str
 
 
 # ── Auth schemas ───────────────────────────────────────────────────────────────

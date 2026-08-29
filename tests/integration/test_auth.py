@@ -1,6 +1,7 @@
 """
 Integration tests for /api/v1/auth endpoints.
-Spins up the full ASGI app with an overridden DB session.
+Spins up the full ASGI app with the Supabase clients replaced by an
+in-memory fake (see tests/fake_supabase.py) — no real network calls.
 """
 import pytest
 from httpx import AsyncClient
@@ -18,6 +19,14 @@ async def test_register(client: AsyncClient):
     body = resp.json()
     assert body["success"] is True
     assert body["data"]["email"] == "test_reg@example.com"
+
+
+@pytest.mark.asyncio
+async def test_register_duplicate_email(client: AsyncClient):
+    payload = {"email": "test_dup@example.com", "password": "strongpass1"}
+    await client.post(f"{BASE}/register", json=payload)
+    resp = await client.post(f"{BASE}/register", json=payload)
+    assert resp.status_code == 409
 
 
 @pytest.mark.asyncio
@@ -62,4 +71,10 @@ async def test_login_wrong_password(client: AsyncClient):
         "email": "test_wrong@example.com",
         "password": "wrongpass",
     })
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_me_without_token(client: AsyncClient):
+    resp = await client.get(f"{BASE}/me")
     assert resp.status_code == 401
