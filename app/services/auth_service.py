@@ -1,5 +1,6 @@
 """
-Auth actions — register/login/refresh — wrapping Supabase Auth directly.
+Auth actions — register/login/refresh (email+password) and
+send_phone_otp/verify_phone_otp (phone) — wrapping Supabase Auth directly.
 Always used with the anon client: these represent an end user's own auth
 action, not a privileged server-side one (see app/db/supabase.py).
 
@@ -42,6 +43,7 @@ class AuthService:
         return UserRead(
             id=uuid.UUID(user.id),
             email=user.email,
+            phone=user.phone or None,
             full_name=metadata.get("full_name"),
             avatar_url=metadata.get("avatar_url"),
             is_active=True,
@@ -73,4 +75,28 @@ class AuthService:
         session = response.session
         if session is None:
             raise UnauthorizedError("Invalid or expired refresh token")
+        return TokenPair(access_token=session.access_token, refresh_token=session.refresh_token)
+
+    async def send_phone_otp(self, phone: str) -> None:
+        """Sends an SMS code, creating a new phone-only account on first use
+        (should_create_user=True) — phone is a separate signup path from
+        email/password, not a link-onto-existing-account flow."""
+        try:
+            await self.client.auth.sign_in_with_otp(
+                {"phone": phone, "options": {"should_create_user": True}}
+            )
+        except AuthApiError as exc:
+            raise BadRequestError(exc.message) from exc
+
+    async def verify_phone_otp(self, phone: str, token: str) -> TokenPair:
+        try:
+            response = await self.client.auth.verify_otp(
+                {"phone": phone, "token": token, "type": "sms"}
+            )
+        except AuthApiError as exc:
+            raise UnauthorizedError("Invalid or expired code") from exc
+
+        session = response.session
+        if session is None:
+            raise UnauthorizedError("Invalid or expired code")
         return TokenPair(access_token=session.access_token, refresh_token=session.refresh_token)

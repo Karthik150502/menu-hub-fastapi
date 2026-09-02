@@ -50,7 +50,8 @@ async def get_current_user(
 
     return UserRead(
         id=user_id,
-        email=claims.get("email", ""),
+        email=claims.get("email") or None,
+        phone=claims.get("phone") or None,
         full_name=profile.get("full_name"),
         avatar_url=profile.get("avatar_url"),
         is_active=profile["is_active"],
