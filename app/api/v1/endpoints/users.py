@@ -24,7 +24,8 @@ async def _to_user_read(profile: dict, client: AsyncClient) -> UserRead:
     user = user_response.user
     return UserRead(
         id=uuid.UUID(profile["id"]),
-        email=user.email if user else "",
+        email=(user.email or None) if user else None,
+        phone=(user.phone or None) if user else None,
         full_name=profile.get("full_name"),
         avatar_url=profile.get("avatar_url"),
         is_active=profile["is_active"],
@@ -52,6 +53,7 @@ async def update_me(
     user = UserRead(
         id=current_user.id,
         email=current_user.email,
+        phone=current_user.phone,
         full_name=profile.get("full_name"),
         avatar_url=profile.get("avatar_url"),
         is_active=profile["is_active"],

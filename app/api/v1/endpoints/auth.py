@@ -1,5 +1,5 @@
 """
-Auth endpoints — register, login, refresh, me.
+Auth endpoints — register, login, refresh, me, phone/otp, phone/verify.
 Backed by Supabase Auth (see app/services/auth_service.py).
 """
 from fastapi import APIRouter
@@ -8,6 +8,8 @@ from app.api.deps import AnonSupabase, CurrentUser
 from app.schemas.common import Response
 from app.schemas.user import (
     LoginRequest,
+    PhoneOtpRequest,
+    PhoneVerifyRequest,
     RefreshRequest,
     TokenPair,
     UserCreate,
@@ -46,3 +48,21 @@ async def refresh(payload: RefreshRequest, client: AnonSupabase) -> Response[Tok
 async def me(current_user: CurrentUser) -> Response[UserRead]:
     """Return the currently authenticated user's profile."""
     return Response(data=current_user)
+
+
+@router.post("/phone/otp", response_model=Response[None])
+async def send_phone_otp(payload: PhoneOtpRequest, client: AnonSupabase) -> Response[None]:
+    """Send a login code by SMS — creates a new phone-only account on
+    first use. Always returns the same generic message, whether or not the
+    phone already has an account."""
+    service = AuthService(client)
+    await service.send_phone_otp(payload.phone)
+    return Response(message="If that number is valid, a code has been sent")
+
+
+@router.post("/phone/verify", response_model=Response[TokenPair])
+async def verify_phone_otp(payload: PhoneVerifyRequest, client: AnonSupabase) -> Response[TokenPair]:
+    """Verify an SMS code and receive an access + refresh token pair."""
+    service = AuthService(client)
+    tokens = await service.verify_phone_otp(payload.phone, payload.token)
+    return Response(data=tokens)

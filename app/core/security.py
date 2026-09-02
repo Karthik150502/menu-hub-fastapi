@@ -49,4 +49,4 @@ async def verify_supabase_token(token: str, client: AsyncClient) -> dict[str, An
     if response is None or response.user is None:
         raise ValueError("Invalid or expired token")
     user = response.user
-    return {"sub": str(user.id), "email": user.email}
+    return {"sub": str(user.id), "email": user.email, "phone": user.phone}

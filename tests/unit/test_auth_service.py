@@ -62,3 +62,36 @@ async def test_update_profile(fake_supabase: FakeSupabaseClient):
 async def test_get_missing_profile_raises_not_found(fake_supabase: FakeSupabaseClient):
     with pytest.raises(NotFoundError):
         await ProfileService(fake_supabase).get(uuid.uuid4())
+
+
+@pytest.mark.asyncio
+async def test_phone_otp_creates_account_and_logs_in(fake_supabase: FakeSupabaseClient):
+    service = AuthService(fake_supabase)
+    await service.send_phone_otp("+919876543210")
+
+    # a profiles row exists already (handle_new_user fires on the phone
+    # signup too), before the code is even verified
+    assert len(fake_supabase.tables["profiles"]) == 1
+
+    tokens = await service.verify_phone_otp("+919876543210", "123456")
+    assert tokens.access_token
+    assert tokens.refresh_token
+
+
+@pytest.mark.asyncio
+async def test_phone_otp_wrong_code_raises_unauthorized(fake_supabase: FakeSupabaseClient):
+    service = AuthService(fake_supabase)
+    await service.send_phone_otp("+919876543210")
+    with pytest.raises(UnauthorizedError):
+        await service.verify_phone_otp("+919876543210", "000000")
+
+
+@pytest.mark.asyncio
+async def test_phone_otp_reuses_existing_account(fake_supabase: FakeSupabaseClient):
+    service = AuthService(fake_supabase)
+    await service.send_phone_otp("+919876543210")
+    await service.verify_phone_otp("+919876543210", "123456")
+
+    # second login for the same number — no second account/profile created
+    await service.send_phone_otp("+919876543210")
+    assert len(fake_supabase.tables["profiles"]) == 1
