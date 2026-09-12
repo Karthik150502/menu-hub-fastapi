@@ -92,6 +92,9 @@ Schema is managed through the Supabase CLI now, not Alembic — see
 ### 3. Start dev server
 ```bash
 make dev
+# or, without make:
+poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
 # API: http://localhost:8000
 # Swagger: http://localhost:8000/docs
 ```
@@ -99,6 +102,44 @@ make dev
 ### 4. Run tests
 ```bash
 make test
+```
+
+---
+
+## Development Environment
+
+### Prerequisites
+- Python 3.11+ and [Poetry](https://python-poetry.org/)
+- [Supabase CLI](https://supabase.com/docs/guides/cli) — for local Postgres/Studio and schema migrations
+- Docker Desktop — required by `supabase start` (and for the optional container workflow below)
+
+### Option A — run natively (recommended for day-to-day dev)
+```bash
+poetry install                          # 1. install deps
+cp .env.example .env                    # 2. fill in Supabase creds (see Environment Variables)
+make db-start                           # 3. start local Supabase (Postgres + Studio), needs Docker running
+make db-push                            # 4. apply migrations to the local DB
+make dev                                # 5. start the API with autoreload
+# or, without make:
+poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+- API: http://localhost:8000
+- Swagger/OpenAPI docs: http://localhost:8000/docs
+- Supabase Studio: http://127.0.0.1:54323 (`make db-studio` prints this)
+
+Set `APP_ENV=development` in `.env`. `make dev` runs `uvicorn app.main:app --reload`, so code changes hot-reload automatically. Stop the local Supabase stack with `supabase stop` when you're done.
+
+### Option B — run via Docker Compose
+```bash
+cp .env.example .env                    # fill in Supabase creds first
+docker compose up --build
+```
+This builds the API image and runs it with `--reload` (bind-mounted source, so edits on the host still hot-reload), plus a `redis` service. You still need `make db-start` / `make db-push` (via the Supabase CLI on the host) to have a database to point `DATABASE_URL` at, unless you're pointing at a hosted Supabase project instead.
+
+### Running tests during dev
+```bash
+make test        # pytest --cov=app --cov-report=term-missing -v
+make lint         # ruff check . && mypy app/
 ```
 
 ---
@@ -146,21 +187,27 @@ in Python). There's no repository/ORM layer to extend anymore.
 2. Add service in `app/services/`, following the pattern above
 3. Add router in `app/api/v1/endpoints/`
 4. Register router in `app/api/v1/router.py`
-5. Generate migration: `make db-new name=add_posts_table`, edit the generated SQL, then `make db-push`
+5. Edit the table's file in `supabase/schemas/` (add a new file for a new domain), then `make db-diff name=add_posts_table` and `make db-push` — see [Migrations](#migrations)
 
 ---
 
 ## Migrations
 
-Schema changes go through the **Supabase CLI** (`supabase/migrations/*.sql`), linked to the remote project — not Alembic.
+Schema changes go through the **Supabase CLI**, using **declarative schemas** — not Alembic.
+
+`supabase/schemas/*.sql` is the schema, split one file per domain (`02_currencies.sql`, `04_restaurants.sql`, `05_dishes.sql`, …), listed in dependency order in `supabase/config.toml`'s `db.migrations.schema_paths`. This is the thing to edit — it's always the current end-state definition (think `schema.prisma`), not a diff. `supabase/migrations/*.sql` stays a generated, append-only history; don't hand-edit past files in it.
 
 ```bash
-make db-new name=add_posts_table   # supabase migration new add_posts_table — creates an empty SQL file to edit
-make db-push                       # supabase db push — applies pending local migrations to the linked project
-make db-pull                       # supabase db pull — pulls the linked project's schema as a migration (needs Docker)
+make db-start                          # supabase start — local Postgres + Studio (needs Docker Desktop running)
+# edit supabase/schemas/*.sql to the shape you want
+make db-diff name=add_posts_table      # supabase db diff -f add_posts_table — diffs schemas/ against local DB, writes the migration
+make db-push                           # supabase db push — applies pending migrations to the linked project
+make db-pull                           # supabase db pull — pulls the linked project's schema as a migration (needs Docker)
 ```
 
-`migrations/` (Alembic) is **frozen** as of 2026-08-29 — kept in the repo as historical record of how the schema got to that point, but no longer used to author new changes. Don't run `alembic revision --autogenerate` — `make migrate`/`make migration` are kept working for reference but are not how schema changes happen anymore. `app/models/*.py` are similarly frozen ORM definitions, kept only so Alembic's autogenerate metadata still resolves — the app itself has no SQLAlchemy runtime left (as of 2026-08-29, when `RestaurantService`, the last holdout, moved to the Supabase SDK); every service talks to Supabase directly via `app/db/supabase.py`.
+**Visualizing the schema:** with `make db-start` running, open Studio at `http://127.0.0.1:54323` → **Database → Schema Visualizer** for an interactive ERD of the live local DB. `make db-studio` prints that URL.
+
+`migrations/` (Alembic) is **frozen** as of 2026-08-29 — kept in the repo as historical record of how the schema got to that point, but no longer used to author new changes. Don't run `alembic revision --autogenerate` — `make migrate`/`make migration` are kept working for reference but are not how schema changes happen anymore. `app/models/*.py` are similarly frozen ORM definitions, kept only so Alembic's autogenerate metadata still resolves — the app itself has no SQLAlchemy runtime left (as of 2026-08-29, when `RestaurantService`, the last holdout, moved to the Supabase SDK); every service talks to Supabase directly via `app/db/supabase.py`. Neither is read by `db diff`/`db push` anymore, so they can't drift out of sync with `supabase/schemas/` in a way that breaks anything — they just won't reflect new columns you add there.
 
 ---
 
@@ -175,3 +222,4 @@ make db-pull                       # supabase db pull — pulls the linked proje
 | `SUPABASE_JWT_SECRET` | Used to verify Supabase-issued JWTs |
 | `DATABASE_URL` | Direct `postgresql+asyncpg://` connection string |
 | `APP_ENV` | `development` / `staging` / `production` |
+| `ALLOWED_ORIGINS` | JSON array of frontend origins allowed by CORS, e.g. `["http://localhost:3000","http://localhost:8081"]`. Defaults to those two (web + Expo/Metro) if unset — add your app's origin(s) if it runs elsewhere |
