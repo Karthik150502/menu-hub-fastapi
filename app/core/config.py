@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-me-in-production"
     API_V1_PREFIX: str = "/api/v1"
     ALLOWED_HOSTS: list[str] = ["*"]
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8081"]
 
     # ── Supabase ───────────────────────────────────────────────────────────
     SUPABASE_URL: str = ""
