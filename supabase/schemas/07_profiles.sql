@@ -4,6 +4,7 @@ create table profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
   avatar_url text,
+  date_of_birth date,
   is_active boolean not null default true,
   is_superuser boolean not null default false,
   created_at timestamptz not null default now(),
@@ -21,8 +22,13 @@ create policy "users can update own profile" on profiles
 create or replace function handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, full_name, avatar_url)
-  values (new.id, new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'avatar_url');
+  insert into public.profiles (id, full_name, avatar_url, date_of_birth)
+  values (
+    new.id,
+    new.raw_user_meta_data ->> 'full_name',
+    new.raw_user_meta_data ->> 'avatar_url',
+    (new.raw_user_meta_data ->> 'date_of_birth')::date
+  );
   return new;
 end;
 $$ language plpgsql security definer set search_path = public;

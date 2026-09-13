@@ -27,7 +27,13 @@ class AuthService:
                 "email": payload.email,
                 "password": payload.password,
                 "options": {
-                    "data": {"full_name": payload.full_name, "avatar_url": payload.avatar_url}
+                    "data": {
+                        "full_name": payload.full_name,
+                        "avatar_url": payload.avatar_url,
+                        "date_of_birth": (
+                            payload.date_of_birth.isoformat() if payload.date_of_birth else None
+                        ),
+                    }
                 },
             })
         except AuthApiError as exc:
@@ -46,6 +52,7 @@ class AuthService:
             phone=user.phone or None,
             full_name=metadata.get("full_name"),
             avatar_url=metadata.get("avatar_url"),
+            date_of_birth=metadata.get("date_of_birth"),
             is_active=True,
             is_superuser=False,
             email_confirmed=user.email_confirmed_at is not None,

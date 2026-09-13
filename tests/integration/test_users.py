@@ -29,6 +29,32 @@ async def test_update_me(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_update_me_date_of_birth(client: AsyncClient):
+    token = await _register_and_login(client, "dob@example.com")
+    resp = await client.patch(
+        f"{BASE}/me",
+        json={"date_of_birth": "2000-01-15"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["data"]["date_of_birth"] == "2000-01-15"
+
+    me_resp = await client.get(f"{BASE}/me", headers={"Authorization": f"Bearer {token}"})
+    assert me_resp.json()["data"]["date_of_birth"] == "2000-01-15"
+
+
+@pytest.mark.asyncio
+async def test_update_me_date_of_birth_in_future_rejected(client: AsyncClient):
+    token = await _register_and_login(client, "futuredob@example.com")
+    resp = await client.patch(
+        f"{BASE}/me",
+        json={"date_of_birth": "2999-01-01"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
 async def test_non_superuser_cannot_list_users(client: AsyncClient):
     token = await _register_and_login(client, "plain@example.com")
     resp = await client.get(BASE, headers={"Authorization": f"Bearer {token}"})
