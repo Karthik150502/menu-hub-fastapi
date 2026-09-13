@@ -54,6 +54,7 @@ async def get_current_user(
         phone=claims.get("phone") or None,
         full_name=profile.get("full_name"),
         avatar_url=profile.get("avatar_url"),
+        date_of_birth=profile.get("date_of_birth"),
         is_active=profile["is_active"],
         is_superuser=profile["is_superuser"],
         email_confirmed=True,

@@ -1,6 +1,12 @@
 import uuid
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from datetime import date, datetime
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
+
+
+def _not_in_future(value: date | None) -> date | None:
+    if value is not None and value > date.today():
+        raise ValueError("date_of_birth cannot be in the future")
+    return value
 
 
 class UserBase(BaseModel):
@@ -11,6 +17,9 @@ class UserBase(BaseModel):
     phone: str | None = None
     full_name: str | None = None
     avatar_url: str | None = None
+    date_of_birth: date | None = None
+
+    _validate_date_of_birth = field_validator("date_of_birth")(_not_in_future)
 
 
 class UserCreate(UserBase):
@@ -21,6 +30,9 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     full_name: str | None = None
     avatar_url: str | None = None
+    date_of_birth: date | None = None
+
+    _validate_date_of_birth = field_validator("date_of_birth")(_not_in_future)
 
 
 class UserRead(UserBase):

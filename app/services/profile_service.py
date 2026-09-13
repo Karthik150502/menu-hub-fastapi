@@ -46,7 +46,9 @@ class ProfileService:
 
     async def update(self, user_id: uuid.UUID, payload: UserUpdate) -> dict[str, Any]:
         await self._get_or_404(user_id)
-        update_data = payload.model_dump(exclude_unset=True)
+        # mode="json" so a `date` (date_of_birth) serializes to "YYYY-MM-DD"
+        # instead of a raw `date` object the Supabase client can't encode.
+        update_data = payload.model_dump(exclude_unset=True, mode="json")
         if not update_data:
             return await self.get(user_id)
 

@@ -26,12 +26,17 @@ class FakeUser:
         full_name: str | None = None,
         avatar_url: str | None = None,
         phone: str | None = None,
+        date_of_birth: str | None = None,
     ) -> None:
         self.id = user_id
         self.email = email
         self.password = password
         self.phone = phone
-        self.user_metadata = {"full_name": full_name, "avatar_url": avatar_url}
+        self.user_metadata = {
+            "full_name": full_name,
+            "avatar_url": avatar_url,
+            "date_of_birth": date_of_birth,
+        }
         self.email_confirmed_at = datetime.now(timezone.utc)
         self.created_at = datetime.now(timezone.utc)
         self.updated_at = datetime.now(timezone.utc)
@@ -80,7 +85,12 @@ class FakeAuth:
         data = (credentials.get("options") or {}).get("data") or {}
         user_id = str(uuid.uuid4())
         user = FakeUser(
-            user_id, email, credentials["password"], data.get("full_name"), data.get("avatar_url")
+            user_id,
+            email,
+            credentials["password"],
+            data.get("full_name"),
+            data.get("avatar_url"),
+            date_of_birth=data.get("date_of_birth"),
         )
         self.store.users_by_id[user_id] = user
         # simulate the handle_new_user DB trigger from migration 0004
@@ -88,6 +98,7 @@ class FakeAuth:
             "id": user_id,
             "full_name": data.get("full_name"),
             "avatar_url": data.get("avatar_url"),
+            "date_of_birth": data.get("date_of_birth"),
             "is_active": True,
             "is_superuser": False,
             "created_at": user.created_at.isoformat(),
@@ -135,6 +146,7 @@ class FakeAuth:
                 "id": user_id,
                 "full_name": None,
                 "avatar_url": None,
+                "date_of_birth": None,
                 "is_active": True,
                 "is_superuser": False,
                 "created_at": user.created_at.isoformat(),

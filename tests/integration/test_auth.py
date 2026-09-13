@@ -22,6 +22,17 @@ async def test_register(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_register_with_date_of_birth(client: AsyncClient):
+    resp = await client.post(f"{BASE}/register", json={
+        "email": "test_reg_dob@example.com",
+        "password": "strongpass1",
+        "date_of_birth": "1995-06-20",
+    })
+    assert resp.status_code == 201
+    assert resp.json()["data"]["date_of_birth"] == "1995-06-20"
+
+
+@pytest.mark.asyncio
 async def test_register_duplicate_email(client: AsyncClient):
     payload = {"email": "test_dup@example.com", "password": "strongpass1"}
     await client.post(f"{BASE}/register", json=payload)
