@@ -1,0 +1,454 @@
+[
+  {
+    "id": "b341f92c-db6f-4a40-a358-7420070948c1",
+    "name": "Butter Chicken",
+    "description": "Rich creamy tomato gravy with tender chicken pieces",
+    "price": 320,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": true,
+    "tag": "40% off 💚"
+  },
+  {
+    "id": "44c31c1e-e05d-45ea-8e35-8931ba047bb0",
+    "name": "Chicken Tikka",
+    "description": "Grilled chicken marinated in spices and yogurt",
+    "price": 280,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": true,
+    "tag": "Bestseller"
+  },
+  {
+    "id": "d6185202-a866-4610-a1eb-b7bc898fc522",
+    "name": "Mutton Rogan Josh",
+    "description": "Kashmiri style slow-cooked mutton curry",
+    "price": 420,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": true,
+    "tag": "Top Pick"
+  },
+  {
+    "id": "dd80cfa2-b15b-4ec9-a06a-1718c10a4ba2",
+    "name": "Fish Fry",
+    "description": "Crispy fried fish with coastal spices",
+    "price": 300,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": false
+  },
+  {
+    "id": "4dd1415b-fee3-4b77-8fce-423487530c16",
+    "name": "Prawn Curry",
+    "description": "Spicy coconut-based prawn curry",
+    "price": 350,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": true
+  },
+  {
+    "id": "5b4eb375-d5c8-4b96-83e8-fbb24565ca95",
+    "name": "Chicken 65",
+    "description": "Spicy deep-fried chicken bites",
+    "price": 260,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": true
+  },
+  {
+    "id": "7f23cb2b-a77d-426f-8916-f5cbe778ba06",
+    "name": "Egg Curry",
+    "description": "Boiled eggs in spicy gravy",
+    "price": 180,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": false
+  },
+  {
+    "id": "81635200-6d70-4574-8b48-fa2d668600af",
+    "name": "Chicken Korma",
+    "description": "Creamy Mughlai chicken curry",
+    "price": 340,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": true
+  },
+  {
+    "id": "7b722203-2915-43f6-9826-d123bca415e9",
+    "name": "Keema Pav",
+    "description": "Spiced minced meat served with bread",
+    "price": 220,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": true
+  },
+  {
+    "id": "2622ff2d-81e2-465b-b23f-db703eea1e83",
+    "name": "Chicken Lollipop",
+    "description": "Fried chicken wings in Indo-Chinese style",
+    "price": 280,
+    "available": true,
+    "category": "non-veg",
+    "veg": false,
+    "showInMenu": true
+  },
+  {
+    "id": "79db8c78-21a8-4c3b-a243-cb4fca0027ef",
+    "name": "Paneer Butter Masala",
+    "description": "Creamy tomato gravy with paneer cubes",
+    "price": 260,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "05eab8f3-af28-40b3-b313-3644d70f4a48",
+    "name": "Veg Biryani",
+    "description": "Aromatic basmati rice with vegetables",
+    "price": 240,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "eb746f41-6614-4a75-ac3f-35a4838f364f",
+    "name": "Palak Paneer",
+    "description": "Spinach gravy with paneer",
+    "price": 230,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "66327165-bb1f-4e43-bf53-7a9c8b16e687",
+    "name": "Aloo Gobi",
+    "description": "Potato and cauliflower curry",
+    "price": 180,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "0364efbe-b132-44a4-ac65-2e36747edf16",
+    "name": "Veg Korma",
+    "description": "Mixed vegetables in creamy gravy",
+    "price": 210,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "7d7055ce-ff63-4753-9c81-c14864876f1f",
+    "name": "Chole Bhature",
+    "description": "Spicy chickpeas with fried bread",
+    "price": 200,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "6201f531-b73f-43c5-a0bd-5e41af9cf3cb",
+    "name": "Rajma Chawal",
+    "description": "Kidney beans with rice",
+    "price": 190,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "3e23abbe-3861-4db1-a3f3-8c83999d6a8d",
+    "name": "Veg Fried Rice",
+    "description": "Rice stir-fried with vegetables",
+    "price": 170,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "42eb6a45-e7d8-4cda-acaf-4b0fbf756367",
+    "name": "Paneer Bhurji",
+    "description": "Scrambled paneer with spices",
+    "price": 210,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "821fc283-be04-4e13-a7c4-41c64ca3e236",
+    "name": "Veg Noodles",
+    "description": "Stir-fried noodles with vegetables",
+    "price": 160,
+    "available": true,
+    "category": "veg",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "d8c26957-01e8-444e-a934-7a906a94ffd6",
+    "name": "Cold Coffee",
+    "description": "Chilled coffee with ice cream",
+    "price": 140,
+    "available": true,
+    "category": "beverages",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "1c910050-87c6-4fe8-8cfe-878eb42ec793",
+    "name": "Fresh Lime Soda",
+    "description": "Refreshing lime soda",
+    "price": 90,
+    "available": true,
+    "category": "beverages",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "f80264f7-8dd6-4c2d-8c4e-ec763d2280d1",
+    "name": "Oreo Shake",
+    "description": "Milkshake blended with Oreo cookies",
+    "price": 160,
+    "available": true,
+    "category": "beverages",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "d554b787-33f0-4dfd-ac90-00fb508c4edf",
+    "name": "Banana Shake",
+    "description": "Creamy banana milkshake",
+    "price": 130,
+    "available": true,
+    "category": "beverages",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "05921501-4733-4337-8499-1e900189d924",
+    "name": "Masala Chai",
+    "description": "Traditional Indian spiced tea",
+    "price": 40,
+    "available": true,
+    "category": "beverages",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "0b0e25fd-d856-45b1-9449-43c52d501249",
+    "name": "Green Tea",
+    "description": "Healthy herbal green tea",
+    "price": 60,
+    "available": true,
+    "category": "beverages",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "9d15f4fc-4619-453f-8969-d2fa6f050d99",
+    "name": "Buttermilk",
+    "description": "Cooling yogurt-based drink",
+    "price": 50,
+    "available": true,
+    "category": "beverages",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "186572e7-66c1-4f46-86e0-b29deab3daed",
+    "name": "Watermelon Juice",
+    "description": "Fresh watermelon juice",
+    "price": 110,
+    "available": true,
+    "category": "beverages",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "c058c0b0-f971-444d-b2df-5d3a9ea68bdd",
+    "name": "Gulab Jamun",
+    "description": "Sweet milk dumplings in syrup",
+    "price": 90,
+    "available": true,
+    "category": "deserts",
+    "veg": true,
+    "showInMenu": false
+  },
+  {
+    "id": "11291e64-9ea6-4710-a9fd-014d21a13c13",
+    "name": "Rasmalai",
+    "description": "Soft paneer balls in sweet milk",
+    "price": 120,
+    "available": true,
+    "category": "deserts",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "aee572ae-66b5-4f09-b2f5-a29e2bf55cf1",
+    "name": "Chocolate Brownie",
+    "description": "Warm chocolate brownie",
+    "price": 150,
+    "available": true,
+    "category": "deserts",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "85a1b501-8c5f-4654-800b-68017b3c50d4",
+    "name": "Ice Cream Sundae",
+    "description": "Ice cream with toppings",
+    "price": 140,
+    "available": true,
+    "category": "deserts",
+    "veg": true,
+    "showInMenu": false
+  },
+  {
+    "id": "42e82f5c-d1f2-4dd0-abe5-2f337ebbbe09",
+    "name": "Kheer",
+    "description": "Rice pudding with dry fruits",
+    "price": 100,
+    "available": true,
+    "category": "deserts",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "83bf96fd-e613-4d05-b76b-0d9c127f44e6",
+    "name": "Pani Puri",
+    "description": "Crispy puris with tangy water",
+    "price": 50,
+    "available": true,
+    "category": "chats",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "94ca6859-aeb5-4caa-a791-74dc5f499939",
+    "name": "Bhel Puri",
+    "description": "Puffed rice with chutneys",
+    "price": 60,
+    "available": true,
+    "category": "chats",
+    "veg": true,
+    "showInMenu": false
+  },
+  {
+    "id": "a57a41fb-4bc8-468d-8c9e-9a6a0b168834",
+    "name": "Sev Puri",
+    "description": "Flat puris topped with sev",
+    "price": 70,
+    "available": true,
+    "category": "chats",
+    "veg": true,
+    "showInMenu": false
+  },
+  {
+    "id": "cea017c3-4fa3-4f09-9293-c57e8a5db02b",
+    "name": "Dahi Puri",
+    "description": "Puris filled with yogurt and chutneys",
+    "price": 80,
+    "available": true,
+    "category": "chats",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "7873e058-37a0-4ab1-983e-404a994154ab",
+    "name": "Beer",
+    "description": "Chilled lager beer",
+    "price": 200,
+    "available": true,
+    "category": "liqour",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "ce205289-52f8-4d06-b13d-96502b2ec86f",
+    "name": "Whiskey",
+    "description": "Premium aged whiskey",
+    "price": 350,
+    "available": true,
+    "category": "liqour",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "ae9f3d8f-054c-4fcc-8fdd-8dffdd1c6c90",
+    "name": "Vodka",
+    "description": "Classic vodka shot",
+    "price": 300,
+    "available": true,
+    "category": "liqour",
+    "veg": true,
+    "showInMenu": false
+  },
+  {
+    "id": "e1de7fd5-41ad-4c11-ada1-51b15455300d",
+    "name": "Veg Manchurian",
+    "description": "Fried veggie balls in sauce",
+    "price": 180,
+    "available": true,
+    "category": "chinese",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "0cb80bb7-2f71-410f-8835-e416be71faaf",
+    "name": "Chicken Manchurian",
+    "description": "Chicken balls in spicy sauce",
+    "price": 220,
+    "available": true,
+    "category": "chinese",
+    "veg": false
+  },
+  {
+    "id": "4bf1ef73-5e83-4065-b2ef-c8358231a520",
+    "name": "Hakka Noodles",
+    "description": "Stir-fried noodles",
+    "price": 170,
+    "available": true,
+    "category": "chinese",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "c3452f06-5a10-487d-9092-29a5d2efd1f3",
+    "name": "Schezwan Fried Rice",
+    "description": "Spicy fried rice",
+    "price": 190,
+    "available": true,
+    "category": "chinese",
+    "veg": true,
+    "showInMenu": true
+  },
+  {
+    "id": "62c7ad79-c838-4af4-8dcc-4c2a7c870631",
+    "name": "Spring Rolls",
+    "description": "Crispy rolls with filling",
+    "price": 150,
+    "available": true,
+    "category": "chinese",
+    "veg": true,
+    "showInMenu": false
+  }
+]

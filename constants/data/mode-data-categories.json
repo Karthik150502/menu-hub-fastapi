@@ -1,0 +1,15 @@
+
+
+
+
+
+[
+    { label: "All" },
+    {  label: "Non Veg" },
+    { label: "Veg" },
+    {  label: "Beverages" },
+    {  label: "Deserts" },
+    { label: "Chats" },
+    { label: "Liqour/ Alcholol", },
+    {  label: "Chinese" },
+]
