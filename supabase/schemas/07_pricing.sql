@@ -28,6 +28,8 @@ create trigger trg_item_prices_updated_at
   before update on item_prices
   for each row execute function set_updated_at();
 alter table item_prices enable row level security;
+create policy "item_prices are publicly readable" on item_prices for select
+  using (true);
 create policy "owner can manage own item_prices" on item_prices for all
   using (dish_id in (
     select id from dishes where restaurant_id in (select id from restaurants where owner_id = auth.uid())

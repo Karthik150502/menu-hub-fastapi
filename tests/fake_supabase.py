@@ -10,7 +10,7 @@ including the same handle_new_user-trigger behavior (a profiles row is
 created alongside every signed-up user).
 """
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from postgrest.exceptions import APIError
@@ -37,9 +37,9 @@ class FakeUser:
             "avatar_url": avatar_url,
             "date_of_birth": date_of_birth,
         }
-        self.email_confirmed_at = datetime.now(timezone.utc)
-        self.created_at = datetime.now(timezone.utc)
-        self.updated_at = datetime.now(timezone.utc)
+        self.email_confirmed_at = datetime.now(UTC)
+        self.created_at = datetime.now(UTC)
+        self.updated_at = datetime.now(UTC)
 
 
 class FakeSession:
@@ -172,8 +172,8 @@ class FakeResponse:
 
 
 class FakeQuery:
-    """Supports the chain shapes ProfileService/RestaurantService use
-    against .table(...) — select/eq/maybe_single/order/range/insert/
+    """Supports the chain shapes ProfileService/RestaurantService/DishService
+    use against .table(...) — select/eq/in_/maybe_single/order/range/insert/
     update/delete. Operates on one table's row dict (keyed by id)."""
 
     def __init__(
@@ -183,6 +183,7 @@ class FakeQuery:
         self._table_name = table_name
         self._fail_inserts = fail_inserts
         self._filters: dict[str, str] = {}
+        self._in_filters: dict[str, set[str]] = {}
         self._single = False
         self._order: tuple[str, bool] | None = None
         self._range: tuple[int, int] | None = None
@@ -195,6 +196,10 @@ class FakeQuery:
 
     def eq(self, field: str, value: Any) -> "FakeQuery":
         self._filters[field] = str(value)
+        return self
+
+    def in_(self, field: str, values: list[Any]) -> "FakeQuery":
+        self._in_filters[field] = {str(v) for v in values}
         return self
 
     def maybe_single(self) -> "FakeQuery":
@@ -225,6 +230,8 @@ class FakeQuery:
         rows = list(self._table.values())
         for field, value in self._filters.items():
             rows = [r for r in rows if str(r.get(field)) == value]
+        for field, values in self._in_filters.items():
+            rows = [r for r in rows if str(r.get(field)) in values]
         return rows
 
     async def execute(self) -> FakeResponse:
@@ -235,7 +242,7 @@ class FakeQuery:
         if self._insert_data is not None:
             row = dict(self._insert_data)
             row.setdefault("id", str(uuid.uuid4()))
-            now = datetime.now(timezone.utc).isoformat()
+            now = datetime.now(UTC).isoformat()
             row.setdefault("created_at", now)
             row.setdefault("updated_at", now)
             self._table[row["id"]] = row
@@ -276,6 +283,7 @@ class FakeSupabaseClient:
         self.tables: dict[str, dict[str, dict[str, Any]]] = {
             "profiles": {},
             "restaurants": {},
+            "categories": {},
             "dishes": {},
             "item_prices": {},
         }
