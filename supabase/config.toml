@@ -68,9 +68,10 @@ schema_paths = [
   "./schemas/02_currencies.sql",
   "./schemas/03_taxes.sql",
   "./schemas/04_restaurants.sql",
-  "./schemas/05_dishes.sql",
-  "./schemas/06_pricing.sql",
-  "./schemas/07_profiles.sql",
+  "./schemas/05_categories.sql",
+  "./schemas/06_dishes.sql",
+  "./schemas/07_pricing.sql",
+  "./schemas/08_profiles.sql",
 ]
 
 [db.seed]

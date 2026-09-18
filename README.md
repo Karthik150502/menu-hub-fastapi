@@ -195,7 +195,7 @@ in Python). There's no repository/ORM layer to extend anymore.
 
 Schema changes go through the **Supabase CLI**, using **declarative schemas** — not Alembic.
 
-`supabase/schemas/*.sql` is the schema, split one file per domain (`02_currencies.sql`, `04_restaurants.sql`, `05_dishes.sql`, …), listed in dependency order in `supabase/config.toml`'s `db.migrations.schema_paths`. This is the thing to edit — it's always the current end-state definition (think `schema.prisma`), not a diff. `supabase/migrations/*.sql` stays a generated, append-only history; don't hand-edit past files in it.
+`supabase/schemas/*.sql` is the schema, split one file per domain (`02_currencies.sql`, `04_restaurants.sql`, `06_dishes.sql`, …), listed in dependency order in `supabase/config.toml`'s `db.migrations.schema_paths`. This is the thing to edit — it's always the current end-state definition (think `schema.prisma`), not a diff. `supabase/migrations/*.sql` stays a generated, append-only history; don't hand-edit past files in it.
 
 ```bash
 make db-start                          # supabase start — local Postgres + Studio (needs Docker Desktop running)

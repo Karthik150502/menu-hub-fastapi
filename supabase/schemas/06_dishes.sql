@@ -6,7 +6,7 @@ create table dishes (
   description text,
   base_price numeric(10,2) not null,
   currency_code text not null default 'INR' references currencies(code),
-  category text not null,
+  category_id uuid not null references categories(id),
   image_url text,
   available boolean not null default true,
   veg boolean not null default true,
@@ -16,11 +16,13 @@ create table dishes (
   updated_at timestamptz not null default now()
 );
 create index idx_dishes_restaurant on dishes (restaurant_id);
-create index idx_dishes_category on dishes (restaurant_id, category);
+create index idx_dishes_category on dishes (restaurant_id, category_id);
 create trigger trg_dishes_updated_at
   before update on dishes
   for each row execute function set_updated_at();
 alter table dishes enable row level security;
+create policy "dishes are publicly readable" on dishes for select
+  using (true);
 create policy "owner can manage own dishes" on dishes for all
   using (restaurant_id in (select id from restaurants where owner_id = auth.uid()))
   with check (restaurant_id in (select id from restaurants where owner_id = auth.uid()));

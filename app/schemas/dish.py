@@ -1,7 +1,9 @@
 import uuid
 from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.category import CategoryRead
 from app.schemas.price import ItemPriceCreate, ItemPriceRead
 
 
@@ -9,7 +11,7 @@ class DishCreate(BaseModel):
     restaurant_id: uuid.UUID
     name: str = Field(min_length=1, max_length=255)
     description: str | None = None
-    category: str = Field(min_length=1)
+    category_id: uuid.UUID
     image_url: str | None = None
     available: bool = True
     veg: bool = True
@@ -25,7 +27,7 @@ class DishRead(BaseModel):
     restaurant_id: uuid.UUID
     name: str
     description: str | None
-    category: str
+    category: CategoryRead
     image_url: str | None
     available: bool
     veg: bool
